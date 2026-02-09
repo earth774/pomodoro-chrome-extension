@@ -486,6 +486,16 @@ body {
   box-shadow: none;
 }
 
+.task-limit-msg {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1a1a1a;
+  background: #ffd700;
+  padding: 8px 12px;
+  border: 2px solid #1a1a1a;
+  margin-bottom: 10px;
+}
+
 .task-empty {
   text-align: center;
   color: #999;

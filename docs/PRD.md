@@ -3,7 +3,7 @@
 
 **Version:** 1.0.0
 **Status:** In Development
-**Last Updated:** February 8, 2026
+**Last Updated:** February 9, 2026
 
 ## Overview
 Pomodoro Chrome Extension เป็น Chrome Extension ที่ช่วยจัดการการทำงานโดยใช้ Pomodoro Technique เพื่อเพิ่มประสิทธิภาพในการทำงานและการจัดการเวลา
@@ -75,6 +75,14 @@ Extension นี้ถูกพัฒนาด้วย Manifest V3 และม
 - มีการตั้งค่าเปิด/ปิดใน Options (default: เปิด)
 - Badge แสดงถูกต้องแม้หลัง reload browser
 
+### 7. Task List Integration ✅ (Implemented)
+- รายการงานแบบ lightweight (จำกัดจำนวนต่อผู้ใช้) เก็บใน Options
+- สถานะ task: todo / doing / done; เพิ่ม ลบ เปลี่ยนสถานะได้
+- เลือก Current Task จาก popup (กล่อง "WORKING ON:" + dropdown)
+- เมื่อ work session จบและมี current task → นับ session ให้ task นั้นใน statistics
+- แสดง Pomodoros Per Task ใน Options (Statistics section)
+- Tasks sync ผ่าน Chrome Sync; currentTaskId เก็บใน local
+
 ## User Interface
 
 ### Design Philosophy
@@ -101,6 +109,7 @@ Extension นี้ใช้ **Vintage Retro Clean Aesthetic** แรงบั�
   - Reset button (cream) - secondary action
   - Settings icon button (black ด้วย hover effects)
 - **Session Counter**: แสดงจำนวน Pomodoros ในกล่อง bordered box
+- **Current Task**: กล่อง "WORKING ON: {task}" หรือ "NO TASK SELECTED" คลิกเพื่อเลือก task จาก dropdown
 - **Progress Dots**: 4 circular dots indicator แบบ vintage style
 - **Design**: Vintage retro clean aesthetic พร้อม:
   - Cream/beige background (#f5e6d3, #fff9f0)
@@ -120,8 +129,12 @@ Extension นี้ใช้ **Vintage Retro Clean Aesthetic** แรงบั�
   - Clean vintage checkbox สำหรับเปิด/ปิดเสียง
 - **Behavior Settings**:
   - Vintage-style auto-start toggles
+- **Tasks Section**:
+  - รายการ tasks (add/delete/toggle status), Hide completed tasks
+  - จำกัดจำนวน tasks; empty state เมื่อยังไม่มี task
 - **Statistics Dashboard**:
   - 3 stat cards แบบ vintage style (yellow/gold background)
+  - Pomodoros Per Task (สรุปจำนวน sessions ต่อ task)
   - Recent history list ในกล่อง bordered box
   - Clear statistics button (black)
 - **Actions**: Save (yellow/gold), Reset to defaults (cream) buttons แบบ vintage style
@@ -146,8 +159,8 @@ Extension นี้ใช้ **Vintage Retro Clean Aesthetic** แรงบั�
   - Clean retro design principles
 - **Extension Framework**: Chrome Extension Manifest V3
 - **Storage**:
-  - `chrome.storage.sync` - Settings (synced across devices)
-  - `chrome.storage.local` - Timer state and statistics
+  - `chrome.storage.sync` - Settings และ tasks (synced across devices)
+  - `chrome.storage.local` - Timer state, currentTaskId และ statistics (รวม dailyStats.byTask)
 - **APIs**:
   - Chrome Notifications API - แจ้งเตือน
   - Chrome Runtime API - Message passing
@@ -170,6 +183,9 @@ Extension นี้ใช้ **Vintage Retro Clean Aesthetic** แรงบั�
 │   └── options.js
 ├── background/
 │   └── background.js
+├── offscreen/
+│   ├── offscreen.html
+│   └── offscreen.js
 └── assets/
     ├── icons/        (icon16, 32, 48, 128px)
     └── sounds/       (complete.wav, tick.wav)
@@ -200,7 +216,7 @@ Extension นี้ใช้ **Vintage Retro Clean Aesthetic** แรงบั�
 - 🎨 **Alternative Vintage Themes** - Typewriter, Library, Cafe menu styles
 
 ### Medium Priority
-- ✅ **Task List Integration** - รายการงานแบบเบาๆ ผูกกับ Pomodoro sessions (เลือก "Current Task" และดูจำนวน Pomodoro ต่อ task)
+- ✅ **Task List Integration** - ✅ Implemented (lightweight list, current task ใน popup, Pomodoros Per Task ใน options)
 - 🚫 **Website Blocking** - บล็อกเว็บไซต์ระหว่าง work session
 - 📅 **Calendar Integration** - Sync กับ Google Calendar
 - 🏆 **Achievements & Streaks** - Gamification elements
@@ -213,7 +229,9 @@ Extension นี้ใช้ **Vintage Retro Clean Aesthetic** แรงบั�
 - 🎵 **Background Music** - Focus music player
 - ⌨️ **Keyboard Shortcuts** - Quick controls
 
-## Task List Integration – Feature Requirements (v2.0)
+## Task List Integration – Feature Requirements (v2.0) ✅ Implemented
+
+ฟีเจอร์นี้ implement แล้ว (Phase 7). ข้อกำหนดด้านล่างเป็นสเปกอ้างอิงและ acceptance criteria สำหรับการทดสอบ
 
 ### Goals
 - ผูก Pomodoro timer กับ "งานจริง" แทนการจับเวลาลอยๆ
@@ -299,12 +317,12 @@ Extension นี้ใช้ **Vintage Retro Clean Aesthetic** แรงบั�
 
 ### Acceptance Criteria (v2.0 Task List Integration)
 
-- [ ] ผู้ใช้เพิ่ม/ลบ/แก้สถานะ tasks ได้จาก options page
-- [ ] ผู้ใช้เลือก current task จาก popup ได้ และข้อความแสดงชัดเจน
-- [ ] เมื่อ work session จบ ขณะที่มี current task, statistics จะนับ session นั้นให้ task นั้น
-- [ ] ผู้ใช้สามารถเห็นอย่างน้อย summary จำนวน Pomodoro ต่อ task ใน statistics section
-- [ ] ไม่มี breaking change กับผู้ใช้เก่า (extension อัปเดตแล้วข้อมูลเดิมยังใช้ได้)
-- [ ] Task list และ current task sync ข้าม devices ตาม behavior ของ `chrome.storage.sync`
+- [x] ผู้ใช้เพิ่ม/ลบ/แก้สถานะ tasks ได้จาก options page
+- [x] ผู้ใช้เลือก current task จาก popup ได้ และข้อความแสดงชัดเจน
+- [x] เมื่อ work session จบ ขณะที่มี current task, statistics จะนับ session นั้นให้ task นั้น
+- [x] ผู้ใช้สามารถเห็นอย่างน้อย summary จำนวน Pomodoro ต่อ task ใน statistics section
+- [x] ไม่มี breaking change กับผู้ใช้เก่า (extension อัปเดตแล้วข้อมูลเดิมยังใช้ได้)
+- [x] Task list sync ข้าม devices ผ่าน `chrome.storage.sync`; currentTaskId เก็บใน local
 
 ## Development Timeline
 
@@ -350,6 +368,14 @@ Extension นี้ใช้ **Vintage Retro Clean Aesthetic** แรงบั�
 - ✅ Badge color - black (#1a1a1a) สอดคล้องกับ vintage theme
 - ✅ State persistence - แสดงถูกต้องหลัง reload
 
+### Phase 7: Task List Integration ✅ (Completed)
+- ✅ Tasks ใน Options (add/delete/toggle status, hide completed, limit จำนวน)
+- ✅ Current task ใน popup (WORKING ON + dropdown เลือก task / None)
+- ✅ setCurrentTask / getCurrentTask messaging; currentTaskId ใน local
+- ✅ เมื่อ work session จบ → บันทึก session ให้ current task (dailyStats.byTask)
+- ✅ Pomodoros Per Task ใน Statistics section (options)
+- ✅ Backward compatibility; tasks ใน sync, currentTaskId ใน local
+
 ### Phase 6: Testing & Distribution (Current Phase)
 - 🔄 Cross-browser testing
 - 🔄 Performance optimization
@@ -366,6 +392,7 @@ Extension นี้ใช้ **Vintage Retro Clean Aesthetic** แรงบั�
 - Monospace font (Courier New) อาจดูเก่าเกินไปสำหรับบางคน
 - สี cream/beige อาจดูเหลืองเกินไปบนจอบางเครื่อง
 - Badge text จำกัดที่ 4 ตัวอักษร (Chrome limitation) - ใช้รูปแบบย่อ เช่น `25:0` แทน `25:00`
+- Task List: Quick-add task จาก popup ยังไม่ implement (เพิ่ม task ได้จาก Options เท่านั้น)
 
 ### Browser Limitations
 - Timer อาจหยุดชั่วคราวเมื่อ computer sleep

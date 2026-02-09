@@ -20,6 +20,7 @@ const taskInput = document.getElementById('taskInput');
 const taskLinkInput = document.getElementById('taskLinkInput');
 const addTaskBtn = document.getElementById('addTaskBtn');
 const taskListEl = document.getElementById('taskList');
+const taskLimitMsg = document.getElementById('taskLimitMsg');
 const hideCompletedCheckbox = document.getElementById('hideCompleted');
 const taskStatsList = document.getElementById('taskStatsList');
 
@@ -246,7 +247,8 @@ function addTask() {
     return;
   }
   if (tasks.length >= MAX_TASKS) {
-    alert(`Maximum ${MAX_TASKS} tasks allowed. Please remove a task first.`);
+    taskLimitMsg.textContent = `Maximum ${MAX_TASKS} tasks allowed. Please remove a task first.`;
+    taskLimitMsg.style.display = 'block';
     return;
   }
 
@@ -295,6 +297,10 @@ function toggleTaskStatus(id) {
 
 function renderTasks() {
   taskListEl.innerHTML = '';
+  // Hide limit message when under the limit
+  if (tasks.length < MAX_TASKS) {
+    taskLimitMsg.style.display = 'none';
+  }
   const hideCompleted = hideCompletedCheckbox.checked;
   const filtered = hideCompleted ? tasks.filter(t => t.status !== 'done') : tasks;
 

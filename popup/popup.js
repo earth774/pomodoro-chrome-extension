@@ -21,9 +21,13 @@ const currentTaskLink = document.getElementById('currentTaskLink');
 const taskSelector = document.getElementById('taskSelector');
 const taskSelectorList = document.getElementById('taskSelectorList');
 
+const quickAddInput = document.getElementById('quickAddInput');
+const quickAddBtn = document.getElementById('quickAddBtn');
+
 let currentTaskId = null;
 let allTasks = [];
 let selectorOpen = false;
+const MAX_TASKS = 10;
 
 // Timer state
 let timerState = {
@@ -59,6 +63,10 @@ settingsBtn.addEventListener('click', openSettings);
 currentTaskBox.addEventListener('click', toggleTaskSelector);
 currentTaskLink.addEventListener('click', (e) => {
   e.stopPropagation();
+});
+quickAddBtn.addEventListener('click', quickAddTask);
+quickAddInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') quickAddTask();
 });
 document.addEventListener('click', (e) => {
   if (selectorOpen && !currentTaskBox.contains(e.target)) {
@@ -337,4 +345,40 @@ function selectTask(taskId) {
   chrome.runtime.sendMessage({ type: 'setCurrentTask', taskId });
   updateCurrentTaskDisplay();
   closeTaskSelector();
+}
+
+// ===== Quick Add Task =====
+
+function quickAddTask() {
+  const title = quickAddInput.value.trim();
+  if (!title) return;
+  if (title.length > 80) return;
+
+  chrome.storage.sync.get({ tasks: [] }, (result) => {
+    const tasks = result.tasks || [];
+    if (tasks.length >= MAX_TASKS) {
+      quickAddInput.value = '';
+      quickAddInput.placeholder = `Max ${MAX_TASKS} tasks!`;
+      setTimeout(() => { quickAddInput.placeholder = 'Quick add task...'; }, 2000);
+      return;
+    }
+
+    const task = {
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+      title,
+      status: 'todo',
+      createdAt: Date.now()
+    };
+
+    tasks.push(task);
+    chrome.storage.sync.set({ tasks }, () => {
+      quickAddInput.value = '';
+      // Set as current task
+      currentTaskId = task.id;
+      chrome.runtime.sendMessage({ type: 'setCurrentTask', taskId: task.id });
+      // Refresh tasks list and display
+      allTasks = tasks.filter(t => t.status !== 'done');
+      updateCurrentTaskDisplay();
+    });
+  });
 }

@@ -237,6 +237,56 @@ body {
   opacity: 0.6;
 }
 
+/* Quick Add Task */
+.quick-add-row {
+  display: flex;
+  gap: 6px;
+  margin: 10px 0 15px;
+}
+
+.quick-add-row input[type="text"] {
+  flex: 1;
+  padding: 8px 10px;
+  border: 2px solid #1a1a1a;
+  border-radius: 0;
+  font-size: 12px;
+  font-family: 'Courier New', Courier, monospace;
+  background: #fff9f0;
+  color: #1a1a1a;
+  box-shadow: 2px 2px 0 #1a1a1a;
+}
+
+.quick-add-row input[type="text"]:focus {
+  outline: none;
+  border-color: #ffd700;
+  box-shadow: 0 0 0 2px #ffd700, 2px 2px 0 2px #1a1a1a;
+}
+
+.quick-add-btn {
+  padding: 8px 14px;
+  border: 2px solid #1a1a1a;
+  border-radius: 0;
+  background: #ffd700;
+  color: #1a1a1a;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: 'Courier New', Courier, monospace;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 #1a1a1a;
+  transition: all 0.2s ease;
+}
+
+.quick-add-btn:hover {
+  background: #ffed4e;
+  transform: translateY(-1px);
+  box-shadow: 2px 3px 0 #1a1a1a;
+}
+
+.quick-add-btn:active {
+  transform: translateY(0);
+  box-shadow: 1px 1px 0 #1a1a1a;
+}
+
 .controls {
   display: flex;
   gap: 10px;
