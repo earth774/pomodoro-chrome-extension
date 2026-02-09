@@ -14,6 +14,17 @@ const dots = [
   document.getElementById('dot4')
 ];
 
+// Task DOM Elements
+const currentTaskBox = document.getElementById('currentTaskBox');
+const currentTaskDisplay = document.getElementById('currentTaskDisplay');
+const currentTaskLink = document.getElementById('currentTaskLink');
+const taskSelector = document.getElementById('taskSelector');
+const taskSelectorList = document.getElementById('taskSelectorList');
+
+let currentTaskId = null;
+let allTasks = [];
+let selectorOpen = false;
+
 // Timer state
 let timerState = {
   isRunning: false,
@@ -38,12 +49,22 @@ const defaultSettings = {
 loadState();
 updateDisplay();
 updateProgressDots();
+loadCurrentTask();
 
 // Event Listeners
 startBtn.addEventListener('click', startTimer);
 pauseBtn.addEventListener('click', pauseTimer);
 resetBtn.addEventListener('click', resetTimer);
 settingsBtn.addEventListener('click', openSettings);
+currentTaskBox.addEventListener('click', toggleTaskSelector);
+currentTaskLink.addEventListener('click', (e) => {
+  e.stopPropagation();
+});
+document.addEventListener('click', (e) => {
+  if (selectorOpen && !currentTaskBox.contains(e.target)) {
+    closeTaskSelector();
+  }
+});
 
 // Listen for messages from background script
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -213,3 +234,107 @@ setInterval(() => {
     });
   }
 }, 1000);
+
+// ===== Current Task =====
+
+function loadCurrentTask() {
+  chrome.runtime.sendMessage({ type: 'getCurrentTask' }, (response) => {
+    if (response) {
+      currentTaskId = response.currentTaskId;
+    }
+    loadTasksForSelector();
+  });
+}
+
+function loadTasksForSelector() {
+  chrome.storage.sync.get({ tasks: [] }, (result) => {
+    allTasks = (result.tasks || []).filter(t => t.status !== 'done');
+    updateCurrentTaskDisplay();
+  });
+}
+
+function updateCurrentTaskDisplay() {
+  const task = allTasks.find(t => t.id === currentTaskId);
+  if (task) {
+    currentTaskDisplay.textContent = task.title;
+    currentTaskDisplay.classList.remove('empty');
+    if (task.link) {
+      currentTaskLink.href = task.link;
+      currentTaskLink.title = task.link;
+      currentTaskLink.style.display = '';
+    } else {
+      currentTaskLink.style.display = 'none';
+    }
+  } else {
+    // If currentTaskId points to a deleted/done task, clear it
+    if (currentTaskId) {
+      currentTaskId = null;
+      chrome.runtime.sendMessage({ type: 'setCurrentTask', taskId: null });
+    }
+    currentTaskDisplay.textContent = 'NO TASK SELECTED';
+    currentTaskDisplay.classList.add('empty');
+    currentTaskLink.style.display = 'none';
+  }
+}
+
+function toggleTaskSelector(e) {
+  e.stopPropagation();
+  if (selectorOpen) {
+    closeTaskSelector();
+  } else {
+    openTaskSelector();
+  }
+}
+
+function openTaskSelector() {
+  // Refresh tasks list before showing
+  chrome.storage.sync.get({ tasks: [] }, (result) => {
+    allTasks = (result.tasks || []).filter(t => t.status !== 'done');
+    renderTaskSelector();
+    taskSelector.style.display = 'block';
+    selectorOpen = true;
+  });
+}
+
+function closeTaskSelector() {
+  taskSelector.style.display = 'none';
+  selectorOpen = false;
+}
+
+function renderTaskSelector() {
+  taskSelectorList.innerHTML = '';
+
+  // "None" option
+  const noneItem = document.createElement('div');
+  noneItem.className = 'task-selector-item none-option' + (!currentTaskId ? ' active' : '');
+  noneItem.textContent = '— None —';
+  noneItem.addEventListener('click', (e) => {
+    e.stopPropagation();
+    selectTask(null);
+  });
+  taskSelectorList.appendChild(noneItem);
+
+  allTasks.forEach(task => {
+    const item = document.createElement('div');
+    item.className = 'task-selector-item' + (task.id === currentTaskId ? ' active' : '');
+    item.textContent = task.title;
+    if (task.link) {
+      const linkIcon = document.createElement('span');
+      linkIcon.className = 'task-selector-link-icon';
+      linkIcon.textContent = '🔗';
+      item.appendChild(linkIcon);
+    }
+    item.addEventListener('click', (e) => {
+      e.stopPropagation();
+      selectTask(task.id);
+    });
+    taskSelectorList.appendChild(item);
+  });
+}
+
+function selectTask(taskId) {
+  currentTaskId = taskId;
+  chrome.runtime.sendMessage({ type: 'setCurrentTask', taskId });
+  updateCurrentTaskDisplay();
+  closeTaskSelector();
+}

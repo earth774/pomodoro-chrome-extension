@@ -62,6 +62,22 @@
       </section>
 
       <section class="settings-section">
+        <h2>📋 Tasks</h2>
+        <div class="task-input-row">
+          <input type="text" id="taskInput" placeholder="Add a new task..." maxlength="80">
+          <button id="addTaskBtn" class="btn btn-primary btn-small">Add Task</button>
+          <input type="text" id="taskLinkInput" placeholder="Link (optional)" maxlength="500">
+        </div>
+        <div id="taskList" class="task-list"></div>
+        <div class="task-footer">
+          <label class="checkbox-label checkbox-inline">
+            <input type="checkbox" id="hideCompleted">
+            <span>Hide completed tasks</span>
+          </label>
+        </div>
+      </section>
+
+      <section class="settings-section">
         <h2>📊 Statistics</h2>
         <div class="stats-container">
           <div class="stat-card">
@@ -76,6 +92,11 @@
             <div class="stat-value" id="totalCount">0</div>
             <div class="stat-label">All Time</div>
           </div>
+        </div>
+
+        <div class="task-stats-container">
+          <h3>Pomodoros Per Task</h3>
+          <div id="taskStatsList" class="task-stats-list"></div>
         </div>
 
         <div class="history-container">

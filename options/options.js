@@ -15,6 +15,16 @@ const weekCount = document.getElementById('weekCount');
 const totalCount = document.getElementById('totalCount');
 const historyList = document.getElementById('historyList');
 
+// Task DOM Elements
+const taskInput = document.getElementById('taskInput');
+const taskLinkInput = document.getElementById('taskLinkInput');
+const addTaskBtn = document.getElementById('addTaskBtn');
+const taskListEl = document.getElementById('taskList');
+const hideCompletedCheckbox = document.getElementById('hideCompleted');
+const taskStatsList = document.getElementById('taskStatsList');
+
+const MAX_TASKS = 10;
+
 // Default settings
 const defaultSettings = {
   workDuration: 25,
@@ -29,11 +39,17 @@ const defaultSettings = {
 // Load settings on page load
 loadSettings();
 loadStats();
+loadTasks();
 
 // Event Listeners
 saveBtn.addEventListener('click', saveSettings);
 resetBtn.addEventListener('click', resetSettings);
 clearStatsBtn.addEventListener('click', clearStats);
+addTaskBtn.addEventListener('click', addTask);
+taskInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') addTask();
+});
+hideCompletedCheckbox.addEventListener('change', renderTasks);
 
 function loadSettings() {
   chrome.storage.sync.get(defaultSettings, (settings) => {
@@ -122,6 +138,9 @@ function loadStats() {
 
     // Display history
     displayHistory(dailyStats);
+
+    // Display per-task stats
+    loadTaskStats(dailyStats);
   });
 }
 
@@ -202,4 +221,174 @@ function clearStats() {
       });
     });
   }
+}
+
+// ===== Task Management =====
+
+let tasks = [];
+
+function loadTasks() {
+  chrome.storage.sync.get({ tasks: [] }, (result) => {
+    tasks = result.tasks || [];
+    renderTasks();
+  });
+}
+
+function saveTasks(callback) {
+  chrome.storage.sync.set({ tasks }, callback);
+}
+
+function addTask() {
+  const title = taskInput.value.trim();
+  if (!title) return;
+  if (title.length > 80) {
+    alert('Task title must be 80 characters or less.');
+    return;
+  }
+  if (tasks.length >= MAX_TASKS) {
+    alert(`Maximum ${MAX_TASKS} tasks allowed. Please remove a task first.`);
+    return;
+  }
+
+  const link = taskLinkInput.value.trim();
+  if (link && !/^https?:\/\/.+/i.test(link)) {
+    alert('Link must start with http:// or https://');
+    return;
+  }
+
+  const task = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+    title,
+    status: 'todo',
+    createdAt: Date.now()
+  };
+  if (link) task.link = link;
+
+  tasks.push(task);
+  taskInput.value = '';
+  taskLinkInput.value = '';
+  saveTasks(() => renderTasks());
+}
+
+function deleteTask(id) {
+  tasks = tasks.filter(t => t.id !== id);
+  saveTasks(() => renderTasks());
+}
+
+function toggleTaskStatus(id) {
+  const task = tasks.find(t => t.id === id);
+  if (!task) return;
+
+  if (task.status === 'todo') {
+    task.status = 'doing';
+    delete task.completedAt;
+  } else if (task.status === 'doing') {
+    task.status = 'done';
+    task.completedAt = Date.now();
+  } else {
+    task.status = 'todo';
+    delete task.completedAt;
+  }
+
+  saveTasks(() => renderTasks());
+}
+
+function renderTasks() {
+  taskListEl.innerHTML = '';
+  const hideCompleted = hideCompletedCheckbox.checked;
+  const filtered = hideCompleted ? tasks.filter(t => t.status !== 'done') : tasks;
+
+  if (filtered.length === 0) {
+    taskListEl.innerHTML = '<div class="task-empty">No tasks yet. Add one above!</div>';
+    return;
+  }
+
+  filtered.forEach(task => {
+    const item = document.createElement('div');
+    item.className = 'task-item' + (task.status === 'done' ? ' task-done' : '');
+
+    const statusBtn = document.createElement('button');
+    statusBtn.className = 'task-status-btn' + (task.status === 'done' ? ' done' : '');
+    statusBtn.textContent = task.status === 'done' ? '✓' : task.status === 'doing' ? '▶' : '';
+    statusBtn.title = `Status: ${task.status} (click to cycle)`;
+    statusBtn.addEventListener('click', () => toggleTaskStatus(task.id));
+
+    const title = document.createElement('span');
+    title.className = 'task-title';
+    title.textContent = task.title;
+
+    item.appendChild(statusBtn);
+    item.appendChild(title);
+
+    if (task.link) {
+      const linkBtn = document.createElement('a');
+      linkBtn.className = 'task-link-btn';
+      linkBtn.href = task.link;
+      linkBtn.target = '_blank';
+      linkBtn.rel = 'noopener noreferrer';
+      linkBtn.textContent = '🔗';
+      linkBtn.title = task.link;
+      linkBtn.addEventListener('click', (e) => e.stopPropagation());
+      item.appendChild(linkBtn);
+    }
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'task-delete-btn';
+    deleteBtn.textContent = '×';
+    deleteBtn.title = 'Delete task';
+    deleteBtn.addEventListener('click', () => deleteTask(task.id));
+
+    item.appendChild(deleteBtn);
+    taskListEl.appendChild(item);
+  });
+}
+
+// ===== Per-Task Statistics =====
+
+function loadTaskStats(dailyStats) {
+  const taskTotals = {};
+
+  Object.values(dailyStats).forEach(day => {
+    if (day.byTask) {
+      Object.entries(day.byTask).forEach(([taskId, data]) => {
+        if (!taskTotals[taskId]) taskTotals[taskId] = 0;
+        taskTotals[taskId] += data.workSessions || 0;
+      });
+    }
+  });
+
+  // Match task IDs to titles
+  chrome.storage.sync.get({ tasks: [] }, (result) => {
+    const allTasks = result.tasks || [];
+    const taskMap = {};
+    allTasks.forEach(t => { taskMap[t.id] = t.title; });
+
+    taskStatsList.innerHTML = '';
+
+    const entries = Object.entries(taskTotals)
+      .map(([id, count]) => ({ id, title: taskMap[id] || '(Deleted task)', count }))
+      .sort((a, b) => b.count - a.count);
+
+    if (entries.length === 0) {
+      taskStatsList.innerHTML = '<div style="text-align: center; color: #999;">No task sessions yet</div>';
+      return;
+    }
+
+    entries.forEach(entry => {
+      const item = document.createElement('div');
+      item.className = 'task-stat-item';
+
+      const titleEl = document.createElement('div');
+      titleEl.className = 'task-stat-title';
+      titleEl.textContent = entry.title;
+
+      const countEl = document.createElement('div');
+      countEl.className = 'task-stat-count';
+      countEl.textContent = `${entry.count} session${entry.count !== 1 ? 's' : ''}`;
+
+      item.appendChild(titleEl);
+      item.appendChild(countEl);
+      taskStatsList.appendChild(item);
+    });
+  });
 }

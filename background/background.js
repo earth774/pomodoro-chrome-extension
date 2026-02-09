@@ -10,6 +10,9 @@ let timerState = {
 
 let timerInterval = null;
 
+// Current task tracking
+let currentTaskId = null;
+
 const OFFSCREEN_DOCUMENT_PATH = 'offscreen/offscreen.html';
 
 // Default settings
@@ -30,13 +33,16 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 // Load state on startup
-chrome.storage.local.get(['timerState'], (result) => {
+chrome.storage.local.get(['timerState', 'currentTaskId'], (result) => {
   if (result && result.timerState) {
     timerState = result.timerState;
     // Don't auto-restart timer after browser restart
     timerState.isRunning = false;
     timerState.isPaused = true;
     saveState();
+  }
+  if (result && result.currentTaskId) {
+    currentTaskId = result.currentTaskId;
   }
   // Update badge on startup
   chrome.storage.sync.get(defaultSettings, (settings) => {
@@ -61,6 +67,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       break;
     case 'getTimerState':
       sendResponse({ state: timerState });
+      break;
+    case 'setCurrentTask':
+      currentTaskId = message.taskId || null;
+      chrome.storage.local.set({ currentTaskId });
+      sendResponse({ success: true, currentTaskId });
+      break;
+    case 'getCurrentTask':
+      sendResponse({ currentTaskId });
       break;
   }
   return true;
@@ -261,6 +275,17 @@ function saveDailyStats() {
     }
 
     dailyStats[today].sessions++;
+
+    // Track per-task statistics
+    if (currentTaskId) {
+      if (!dailyStats[today].byTask) {
+        dailyStats[today].byTask = {};
+      }
+      if (!dailyStats[today].byTask[currentTaskId]) {
+        dailyStats[today].byTask[currentTaskId] = { workSessions: 0 };
+      }
+      dailyStats[today].byTask[currentTaskId].workSessions++;
+    }
 
     chrome.storage.local.set({ dailyStats });
   });

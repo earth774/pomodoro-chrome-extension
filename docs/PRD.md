@@ -200,7 +200,7 @@ Extension นี้ใช้ **Vintage Retro Clean Aesthetic** แรงบั�
 - 🎨 **Alternative Vintage Themes** - Typewriter, Library, Cafe menu styles
 
 ### Medium Priority
-- ✅ **Task List Integration** - จัดการ tasks พร้อม Pomodoro
+- ✅ **Task List Integration** - รายการงานแบบเบาๆ ผูกกับ Pomodoro sessions (เลือก "Current Task" และดูจำนวน Pomodoro ต่อ task)
 - 🚫 **Website Blocking** - บล็อกเว็บไซต์ระหว่าง work session
 - 📅 **Calendar Integration** - Sync กับ Google Calendar
 - 🏆 **Achievements & Streaks** - Gamification elements
@@ -212,6 +212,99 @@ Extension นี้ใช้ **Vintage Retro Clean Aesthetic** แรงบั�
 - 🌍 **Internationalization** - Multi-language support
 - 🎵 **Background Music** - Focus music player
 - ⌨️ **Keyboard Shortcuts** - Quick controls
+
+## Task List Integration – Feature Requirements (v2.0)
+
+### Goals
+- ผูก Pomodoro timer กับ "งานจริง" แทนการจับเวลาลอยๆ
+- ให้ผู้ใช้เห็นว่าลงเวลาไปกับ task ไหนบ้างผ่าน statistics ที่มีอยู่แล้ว
+- รักษาความเรียบง่ายและ vintage aesthetic ไม่ให้กลายเป็น full task manager
+
+### User Stories
+- ในฐานะผู้ใช้ ฉันอยากสร้างรายการงานสั้นๆ สำหรับวันนี้ เพื่อเลือกงานก่อนเริ่ม Pomodoro แต่ละรอบ
+- ในฐานะผู้ใช้ ฉันอยากเลือก "Current Task" จาก popup เพื่อให้แต่ละ Pomodoro ถูกบันทึกให้ task นั้น
+- ในฐานะผู้ใช้ ฉันอยากเห็นสรุปว่าแต่ละ task ใช้ไปกี่ Pomodoro แล้ว
+
+### Scope
+
+#### In scope (v2.0)
+- Task list แบบ lightweight:
+  - ฟิลด์: `title`, `status` (`todo`/`doing`/`done`)
+  - จำกัดจำนวน tasks ต่อผู้ใช้ (เช่น 5–10 งาน) เพื่อให้ UI เบาและอ่านง่าย
+  - การเพิ่ม/ลบ/เปลี่ยนสถานะ task ผ่าน options page
+- Current task selection ใน popup:
+  - แสดงกล่อง "WORKING ON: {taskTitle}" หรือ "NO TASK SELECTED"
+  - เลือก task ปัจจุบันจาก dropdown / list
+  - Quick-add task แบบชื่อสั้นๆ จาก popup (optional, ถ้าทำได้ง่าย)
+- การผูก Pomodoro sessions กับ task:
+  - เมื่อ work session จบและมี current task → บันทึกว่า session นั้นนับให้ task นั้น
+  - ขยาย statistics ให้แสดงจำนวน Pomodoro ต่อ task (อย่างน้อย top tasks)
+
+#### Out of scope (v2.0)
+- ระบบ task management เต็มรูปแบบ เช่น projects, due date, priority หลายระดับ, subtasks
+- Integration กับ task tools ภายนอก (เช่น Todoist, Notion, Jira)
+- Drag & drop reorder ที่ซับซ้อน (ถ้าทำได้ง่ายค่อยพิจารณาเพิ่มทีหลัง)
+
+### UX & UI
+
+#### Options Page
+- เพิ่ม section `Tasks`:
+  - รายการ tasks ในรูปแบบ list vintage (เส้นแบ่ง, checkbox, monospace)
+  - Input สำหรับเพิ่ม task ใหม่ (title อย่างเดียว)
+  - ปุ่ม mark as done และลบ task
+  - ตัวเลือก filter ซ่อน tasks ที่ done แล้ว (optional)
+- Tasks เก็บใน `chrome.storage.sync` ร่วมกับ settings อื่น (sync ข้าม devices)
+
+#### Popup
+- แสดง "Current Task" ใต้ timer:
+  - กล่อง bordered แบบ newspaper: `WORKING ON: {TASK}` หรือ `NO TASK SELECTED`
+- UI เลือก task:
+  - dropdown / เมนูเล็กๆ เปิดมาจาก current task box หรือ icon เล็ก
+  - ถ้ามีไม่เกิน 5–10 tasks จะยังอ่านง่ายบน 350×500px
+- สไตล์สอดคล้อง vintage (cream/beige, black, gold, Courier New, double borders)
+
+### Data Model & Storage
+
+- **Tasks (chrome.storage.sync)**
+  - key แนะนำ: `tasks`
+  - รูปแบบ (เบื้องต้น):
+    - `id: string`
+    - `title: string`
+    - `status: 'todo' | 'doing' | 'done'`
+    - `createdAt: number` (timestamp)
+    - `completedAt?: number`
+- **Current task**
+  - เก็บ `currentTaskId`:
+    - ใน `chrome.storage.local` หรือใน timer state ที่ background ใช้
+    - อัปเดตผ่าน message จาก popup
+- **Statistics linkage (chrome.storage.local)**
+  - ขยาย schema statistics เดิม (daily/weekly/all-time) ให้รองรับการอ้างอิง `taskId`:
+    - เช่น log per-session ที่มี `taskId` หรือ
+    - ตัวนับรวมต่อ task ต่อวัน (`byTask[taskId].workSessions`)
+  - ต้อง backward-compatible กับข้อมูลเดิม (ตรวจ null/undefined ก่อนอ่าน `taskId`)
+
+### Messaging & Architecture
+
+- Popup → background:
+  - ข้อความใหม่เช่น:
+    - `setCurrentTask` (payload: `taskId | null`)
+    - (optional) `createQuickTask` สำหรับ quick-add จาก popup
+- Background:
+  - เก็บ `currentTaskId` ใน state
+  - เมื่อ work session จบ:
+    - ถ้ามี `currentTaskId` → บันทึกลง statistics ว่า task นั้นได้ +1 Pomodoro
+- Options:
+  - อ่าน/เขียน `tasks` จาก `chrome.storage.sync`
+  - ไม่ยุ่งเกี่ยวกับ timer state โดยตรง
+
+### Acceptance Criteria (v2.0 Task List Integration)
+
+- [ ] ผู้ใช้เพิ่ม/ลบ/แก้สถานะ tasks ได้จาก options page
+- [ ] ผู้ใช้เลือก current task จาก popup ได้ และข้อความแสดงชัดเจน
+- [ ] เมื่อ work session จบ ขณะที่มี current task, statistics จะนับ session นั้นให้ task นั้น
+- [ ] ผู้ใช้สามารถเห็นอย่างน้อย summary จำนวน Pomodoro ต่อ task ใน statistics section
+- [ ] ไม่มี breaking change กับผู้ใช้เก่า (extension อัปเดตแล้วข้อมูลเดิมยังใช้ได้)
+- [ ] Task list และ current task sync ข้าม devices ตาม behavior ของ `chrome.storage.sync`
 
 ## Development Timeline
 
@@ -285,7 +378,7 @@ Extension นี้ใช้ **Vintage Retro Clean Aesthetic** แรงบั�
 - Team/Collaboration Features
 - Third-party Cloud Sync
 - Website Blocking
-- Task Management
+- Full Task Management system (projects, deadlines, subtasks ฯลฯ) — v2.0 มีเพียง Task List Integration แบบ lightweight เท่านั้น
 - Calendar Integration
 
 ## Installation & Setup
