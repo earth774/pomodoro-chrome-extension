@@ -1,0 +1,234 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 350px;
+  min-height: 500px;
+  font-family: 'Courier New', Courier, monospace;
+  background: #f5e6d3;
+  color: #1a1a1a;
+}
+
+.container {
+  padding: 20px;
+  border: 8px double #1a1a1a;
+  background: #fff9f0;
+  box-shadow: inset 0 0 0 2px #1a1a1a;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 3px solid #1a1a1a;
+  background: #ffd700;
+  box-shadow: 4px 4px 0 #1a1a1a;
+}
+
+.header h1 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a1a;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.icon-btn {
+  background: #1a1a1a;
+  border: 2px solid #1a1a1a;
+  border-radius: 0;
+  padding: 8px 12px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #fff9f0;
+}
+
+.icon-btn:hover {
+  background: #ffd700;
+  color: #1a1a1a;
+  transform: translateY(-2px);
+  box-shadow: 2px 2px 0 #1a1a1a;
+}
+
+.icon-btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.timer-display {
+  display: flex;
+  justify-content: center;
+  margin: 30px 0;
+}
+
+.timer-circle {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: #fff9f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 6px solid #1a1a1a;
+  box-shadow: 0 0 0 3px #fff9f0, 0 0 0 6px #1a1a1a, 8px 8px 0 #1a1a1a;
+  transition: all 0.3s ease;
+}
+
+.timer-circle.active {
+  animation: vintagePulse 2s ease-in-out infinite;
+}
+
+@keyframes vintagePulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+.timer-text {
+  font-size: 48px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #1a1a1a;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.session-info {
+  text-align: center;
+  margin: 20px 0;
+  background: #fff9f0;
+  padding: 15px;
+  border: 3px solid #1a1a1a;
+  border-radius: 0;
+}
+
+.session-type {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #1a1a1a;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.session-count {
+  font-size: 12px;
+  color: #555;
+  font-weight: 500;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  margin: 25px 0;
+}
+
+.btn {
+  flex: 1;
+  padding: 12px 20px;
+  border: 3px solid #1a1a1a;
+  border-radius: 0;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Courier New', Courier, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 4px 4px 0 #1a1a1a;
+}
+
+.btn-primary {
+  background: #ffd700;
+  color: #1a1a1a;
+}
+
+.btn-primary:hover {
+  background: #ffed4e;
+  transform: translateY(-2px);
+  box-shadow: 4px 6px 0 #1a1a1a;
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 2px 2px 0 #1a1a1a;
+}
+
+.btn-secondary {
+  background: #1a1a1a;
+  color: #fff9f0;
+}
+
+.btn-secondary:hover {
+  background: #333;
+  transform: translateY(-2px);
+  box-shadow: 4px 6px 0 #1a1a1a;
+}
+
+.btn-secondary:active {
+  transform: translateY(0);
+  box-shadow: 2px 2px 0 #1a1a1a;
+}
+
+.btn-tertiary {
+  background: #fff9f0;
+  color: #1a1a1a;
+}
+
+.btn-tertiary:hover {
+  background: #f5e6d3;
+  transform: translateY(-2px);
+  box-shadow: 4px 6px 0 #1a1a1a;
+}
+
+.btn-tertiary:active {
+  transform: translateY(0);
+  box-shadow: 2px 2px 0 #1a1a1a;
+}
+
+.progress-indicator {
+  text-align: center;
+  margin-top: 30px;
+  background: #fff9f0;
+  padding: 15px;
+  border: 3px solid #1a1a1a;
+  border-radius: 0;
+}
+
+.progress-dots {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+.dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #f5e6d3;
+  border: 3px solid #1a1a1a;
+  transition: all 0.3s ease;
+}
+
+.dot.completed {
+  background: #ffd700;
+  border-color: #1a1a1a;
+  box-shadow: 0 0 0 2px #fff9f0, 0 0 0 5px #1a1a1a;
+}
+
+.progress-label {
+  font-size: 11px;
+  color: #555;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}

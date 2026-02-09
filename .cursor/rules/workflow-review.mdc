@@ -1,0 +1,16 @@
+---
+description: Workflow for reviewing code or PRs in the Pomodoro extension
+alwaysApply: false
+---
+
+# Review Workflow
+
+When **reviewing** code or changes:
+
+1. **Correctness** – Does it match PRD and intended behavior? Are edge cases (pause, reset, reload, missing storage) handled?
+2. **Architecture** – Is timer logic in background and UI in popup/options? Are message types and storage keys consistent and documented?
+3. **Chrome APIs** – Correct use of `chrome.storage.sync` vs `local`, and `chrome.runtime.sendMessage`/`onMessage`. No long-lived state assumptions in service worker.
+4. **Security & UX** – Input validation (durations, etc.), no eval or unsafe HTML. Notifications and errors are clear.
+5. **Maintainability** – Readable names, minimal comments for non-obvious parts. PRD/README updated if behavior or setup changes.
+
+**Feedback format:** Critical (must fix) → Suggestions (should consider) → Nice-to-have (optional).

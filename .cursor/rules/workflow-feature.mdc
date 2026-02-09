@@ -1,0 +1,16 @@
+---
+description: Workflow for adding new features to the Pomodoro extension
+alwaysApply: false
+---
+
+# Feature Workflow
+
+When implementing a **new feature**:
+
+1. **Align with PRD** – Check `docs/PRD.md` for scope, phases, and future enhancements. Confirm the feature is in scope for the current phase.
+2. **Design touchpoints** – Identify which of these change: `manifest.json`, `background/background.js`, `popup/`, `options/`, `chrome.storage` (sync vs local).
+3. **Implement in order** – Background (state/API) → options (if settings) → popup (UI). Use existing message types or add new ones; keep popup and background contracts in sync.
+4. **Persist correctly** – Settings in `chrome.storage.sync`; timer state and stats in `chrome.storage.local`. Match existing keys and shapes.
+5. **Update docs** – If the feature is user-facing or changes behavior, update PRD (and README if needed). Add brief comments for non-obvious logic.
+
+**Checklist:** PRD alignment → background → options (if needed) → popup → storage keys → docs/comments.

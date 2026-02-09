@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pomodoro Timer - Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🍅 Pomodoro Timer Settings</h1>
+    </div>
+
+    <div class="content">
+      <section class="settings-section">
+        <h2>⏱️ Timer Duration</h2>
+        <div class="setting-item">
+          <label for="workDuration">Work Session Duration (minutes)</label>
+          <input type="number" id="workDuration" min="1" max="60" value="25">
+        </div>
+        <div class="setting-item">
+          <label for="shortBreakDuration">Short Break Duration (minutes)</label>
+          <input type="number" id="shortBreakDuration" min="1" max="30" value="5">
+        </div>
+        <div class="setting-item">
+          <label for="longBreakDuration">Long Break Duration (minutes)</label>
+          <input type="number" id="longBreakDuration" min="1" max="60" value="15">
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h2>🔔 Notifications</h2>
+        <div class="setting-item">
+          <label class="checkbox-label">
+            <input type="checkbox" id="soundEnabled">
+            <span>Enable notification sounds</span>
+          </label>
+        </div>
+        <div class="setting-item">
+          <label class="checkbox-label">
+            <input type="checkbox" id="badgeEnabled">
+            <span>Show time on extension icon</span>
+          </label>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h2>⚙️ Behavior</h2>
+        <div class="setting-item">
+          <label class="checkbox-label">
+            <input type="checkbox" id="autoStartBreaks">
+            <span>Auto-start breaks</span>
+          </label>
+        </div>
+        <div class="setting-item">
+          <label class="checkbox-label">
+            <input type="checkbox" id="autoStartPomodoros">
+            <span>Auto-start work sessions</span>
+          </label>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h2>📊 Statistics</h2>
+        <div class="stats-container">
+          <div class="stat-card">
+            <div class="stat-value" id="todayCount">0</div>
+            <div class="stat-label">Today</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="weekCount">0</div>
+            <div class="stat-label">This Week</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="totalCount">0</div>
+            <div class="stat-label">All Time</div>
+          </div>
+        </div>
+
+        <div class="history-container">
+          <h3>Recent History</h3>
+          <div id="historyList" class="history-list"></div>
+        </div>
+
+        <button id="clearStats" class="btn btn-danger">Clear All Statistics</button>
+      </section>
+
+      <div class="actions">
+        <button id="saveBtn" class="btn btn-primary">Save Settings</button>
+        <button id="resetBtn" class="btn btn-secondary">Reset to Defaults</button>
+      </div>
+
+      <div id="saveMessage" class="save-message">Settings saved successfully!</div>
+    </div>
+
+    <div class="footer">
+      <p>Pomodoro Timer v1.0.0</p>
+      <p>Built with ❤️ by amieart for productivity</p>
+    </div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

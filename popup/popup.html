@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pomodoro Timer</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🍅 Pomodoro Timer</h1>
+      <button id="settingsBtn" class="icon-btn" title="Settings">⚙️</button>
+    </div>
+
+    <div class="timer-display">
+      <div id="timerCircle" class="timer-circle">
+        <div id="timerText" class="timer-text">25:00</div>
+      </div>
+    </div>
+
+    <div class="session-info">
+      <div class="session-type">
+        <span id="sessionType">Work Session</span>
+      </div>
+      <div class="session-count">
+        <span id="sessionCount">0</span> Pomodoros completed today
+      </div>
+    </div>
+
+    <div class="controls">
+      <button id="startBtn" class="btn btn-primary">Start</button>
+      <button id="pauseBtn" class="btn btn-secondary" style="display: none;">Pause</button>
+      <button id="resetBtn" class="btn btn-tertiary">Reset</button>
+    </div>
+
+    <div class="progress-indicator">
+      <div class="progress-dots">
+        <span class="dot" id="dot1"></span>
+        <span class="dot" id="dot2"></span>
+        <span class="dot" id="dot3"></span>
+        <span class="dot" id="dot4"></span>
+      </div>
+      <div class="progress-label">Sessions until long break</div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

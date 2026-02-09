@@ -1,0 +1,16 @@
+---
+description: Workflow for refactoring code in the Pomodoro extension
+alwaysApply: false
+---
+
+# Refactor Workflow
+
+When **refactoring**:
+
+1. **Define goal** – Clarify target: readability, consistency, reuse, or structure. Avoid mixing refactor with new features or bug fixes.
+2. **Keep behavior** – Refactor should not change user-visible behavior or message/storage contracts. If behavior changes, treat as feature or fix first.
+3. **Match existing style** – Vanilla JS (ES6+), same patterns: `defaultSettings`, `timerState`, message types. Preserve file roles (background = engine, popup = UI, options = settings).
+4. **Do it in steps** – One logical change per step (e.g. extract function, rename, then move). Easier to review and revert if needed.
+5. **Update comments/docs** – If you rename message types, storage keys, or move logic, update comments and PRD if they reference those.
+
+**Checklist:** Goal → no behavior change → same style/structure → small steps → update comments/docs.

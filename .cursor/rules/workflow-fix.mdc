@@ -1,0 +1,16 @@
+---
+description: Workflow for fixing bugs in the Pomodoro extension
+alwaysApply: false
+---
+
+# Fix Workflow
+
+When **fixing a bug**:
+
+1. **Reproduce** – Get clear steps (which page: popup, options, background). Note whether it happens after reload, restart, or specific actions (e.g. pause then start).
+2. **Locate context** – Bug in UI (popup/options) vs timer logic (background). Use DevTools for popup/options; "Service worker" link on `chrome://extensions` for background.
+3. **Check state** – Inspect `chrome.storage.local` and `chrome.storage.sync` for bad or stale values. Consider message ordering (e.g. `timerUpdate` after `startTimer`).
+4. **Change minimally** – Prefer the smallest fix: correct condition, guard, or null check. Avoid refactoring unrelated code.
+5. **Verify** – Re-test the repro steps and one related path (e.g. pause, reset) to avoid regressions.
+
+**Checklist:** Reproduce → identify context (popup/options/background) → inspect storage/messages → minimal fix → re-test.

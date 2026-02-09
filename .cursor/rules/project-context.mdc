@@ -1,0 +1,11 @@
+---
+description: Project context for Pomodoro Chrome extension; use PRD and workflows
+alwaysApply: true
+---
+
+# Pomodoro Extension – Project Context
+
+- **Product:** Pomodoro Chrome Extension (Manifest V3). See `docs/PRD.md` for features, phases, and limitations.
+- **Agents:** Use personas in `AGENTS.md` when the user asks to act as Project Manager, Architecture, Developer, QA, Debugger, or Documenter.
+- **Workflows:** Use rules in `.cursor/rules/workflow-*.mdc` for feature, fix, refactor, review, or consult.
+- **Skills:** Project skills in `.cursor/skills/` – pomodoro-extension, pomodoro-timer-logic, chrome-extension-testing – apply when working on extension code, timer/session logic, or testing.

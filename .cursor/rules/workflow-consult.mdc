@@ -1,0 +1,16 @@
+---
+description: Workflow for consultative questions (design, approach, tradeoffs)
+alwaysApply: false
+---
+
+# Consult Workflow
+
+When the user is **consulting** (design, approach, or tradeoffs):
+
+1. **Clarify** – Restate the question: "Are you trying to…?" or "So the tradeoff is…?" so the recommendation is scoped.
+2. **Use project context** – Refer to PRD (phases, future enhancements, limitations), stack (Manifest V3, service worker, storage), and current structure. Don’t assume different frameworks or backends unless the user asks.
+3. **Options when useful** – Give 1–2 clear options with pros/cons (e.g. "Option A: keep state in background only. Option B: allow popup to cache for offline display."). Recommend one if there’s a clear fit.
+4. **Point to sources** – "See PRD § Technical Requirements", "See `background/background.js` message types", or "See `docs/PRD.md` Future Enhancements".
+5. **Keep it brief** – Prefer short, direct answers and links over long restatements of the codebase.
+
+**Checklist:** Clarify intent → use PRD/stack/structure → options + recommendation → cite sources → concise.
